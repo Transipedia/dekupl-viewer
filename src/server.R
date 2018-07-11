@@ -77,6 +77,8 @@ server <- function(input, output, session) {
   ###  Outputs
   #########################################################################################################################################
   
+  ######################################  Table page 
+
   # Set an event observable (on click) on table row, open a modal
   observeEvent(input$table_rows_selected, {
     showModal(
@@ -144,5 +146,45 @@ server <- function(input, output, session) {
     },
     server = FALSE
   )
+
+  ######################################  Heatmap page 
+
+  output$heatmap <- renderPlot(
+    {
+      data = dataTableFilters()
+      if (nrow(data) > 0) {
+        samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
+        mat = as.matrix(data[, c(samples)])
+        base_mean = rowMeans(mat)
+        mat_scaled = t(apply(mat, 1, scale))
+
+        formatSample = gsub("s\\d+_", "", colnames(mat))
+        ha = HeatmapAnnotation(df = data.frame(samples = formatSample))
+
+        Heatmap(
+          mat_scaled, name = "expression", km = 5, col = colorRamp2(c(-2, 0, 2), c("green", "white", "red")),
+          top_annotation = ha, top_annotation_height = unit(4, "mm"), 
+          show_row_names = FALSE, show_column_names = FALSE
+        ) +
+        Heatmap(base_mean, name = "base mean", show_row_names = FALSE, width = unit(5, "mm")) +
+        Heatmap(
+          data$contig_size, name = "contig size", col = colorRamp2(c(0, 1300), c("white", "orange")),
+          heatmap_legend_param = list(
+            at = c(0, 200, 500, 800, 1000, 1300), 
+            labels = c("0b", "200b", "500b", "800b", "1Kb", "1.3kb")
+          ),
+          width = unit(5, "mm")
+        ) +
+        Heatmap(data$gene_biotype, name = "biotype", width = unit(5, "mm"))
+      } else {
+        print('no data')
+      }
+    },
+    height=700, bg="transparent"
+  )
+
+  output$selectedItems <- renderText({ 
+    paste("Selected items: ", nrow(dataTableFilters()))
+  })
 
 }

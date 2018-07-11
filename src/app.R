@@ -53,6 +53,8 @@ library(shiny)
 library(DT)
 library(ggplot2)
 library(shinydashboard)
+library(ComplexHeatmap)
+library(circlize)
 
 app <- shinyAppDir("./")
 runApp(app, 8080, FALSE, '0.0.0.0')

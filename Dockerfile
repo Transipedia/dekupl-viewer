@@ -16,7 +16,8 @@ Rscript -e "install.packages('ggplot2')" && \
 Rscript -e "install.packages('shiny')" && \
 Rscript -e "install.packages('DT')" && \
 Rscript -e "install.packages('shinydashboard')" && \
-Rscript -e "install.packages('optparse')"
+Rscript -e "install.packages('optparse')" && \
+Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('ComplexHeatmap')"
 
 # Expose 8080 for Docker
 EXPOSE 8080

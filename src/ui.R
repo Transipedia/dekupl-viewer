@@ -130,7 +130,7 @@ body <- dashboardBody(
             title = "Heatmap",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, uiOutput("heatmap")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("selectedItems"), plotOutput("heatmap")
               )
             )
           ),
