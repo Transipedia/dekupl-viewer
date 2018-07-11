@@ -46,7 +46,7 @@ server <- function(input, output, session) {
   completeSampleCdts <- function() {
     newCdt = cbind(samplesCdtDF, data.frame(diff = 0))
     for(i in 1:nrow(newCdt)) {
-      newCdt[i,'diff'] = selectedRow()[newCdt[i, 'sample']]
+      newCdt[i,'diff'] = selectedRow()[as.character(newCdt[i, 'sample'])]
     }
     return (newCdt)
   }
@@ -68,7 +68,8 @@ server <- function(input, output, session) {
       contig_size <= input$contigSize[[2]]
     )
     # get cols we want to display
-    s <- s[,c("contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
+    samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = "")) # keep samples to be able to compute diff in boxplot
+    s <- s[,c(samples, "contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
     return(s)
   })
 
@@ -131,7 +132,7 @@ server <- function(input, output, session) {
           pageLength = 18,
           columnDefs = list(list(
             visible=FALSE,
-            targets=c(0, 1)       # to hide the 2 first cols (contig and tag)
+            targets=c(0 : (nrow(samplesCdtDF['sample']) + 1))   # to hide samples and contig + tag cols
           ))
         )
       ) %>%

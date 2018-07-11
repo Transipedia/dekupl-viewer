@@ -22,7 +22,7 @@ Rscript app.R -c /path/to/DiffContigsInfos.tsv -s /path/to/sample_conditions_ful
 Open a browser at this address `http://0.0.0.0:8080` and enjoy it. 
 
 #### Run in virtual env (docker)
-You also could run the app in docker virtual environnement.
+You could also run the app in a docker virtual environnement.
 ```
 docker build -t dekupl-viewer:0.1 .
 
