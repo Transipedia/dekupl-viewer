@@ -138,7 +138,7 @@ body <- dashboardBody(
             title = "PCA",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("pcaSelectedItems"), uiOutput("pca")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("pcaSelectedItems"), plotOutput("pca")
               )
             )
           ),
@@ -146,7 +146,7 @@ body <- dashboardBody(
             title = "Volcano graph",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("volcanoSelectedItems"), uiOutput("volcano")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("volcanoSelectedItems"), plotOutput("volcano")
               )
             )
           )

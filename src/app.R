@@ -55,6 +55,7 @@ library(ggplot2)
 library(shinydashboard)
 library(ComplexHeatmap)
 library(circlize)
+library(factoextra) # for the PCA
 
 app <- shinyAppDir("./")
 runApp(app, 8080, FALSE, '0.0.0.0')
