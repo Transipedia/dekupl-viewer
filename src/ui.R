@@ -48,6 +48,19 @@ body <- dashboardBody(
             )
           )
         ),
+        ## clipped_3p filter
+        fluidRow(
+          box(
+            width = 12, title = "3p clipped number", status = "info", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            sliderInput(
+              inputId = "clipped3p",
+              label="value",
+              min = 0,
+              max = 100,
+              value = c(1, 100)
+            )
+          )
+        ),
         ## nb_splice filter
         fluidRow(
           box(
@@ -58,19 +71,6 @@ body <- dashboardBody(
               min = 0,
               max = 10,
               value = c(0, 10)
-            )
-          )
-        ),
-        ## clipped_3p filter
-        fluidRow(
-          box(
-            width = 12, title = "3p clipped number", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
-            sliderInput(
-              inputId = "clipped3p",
-              label="value",
-              min = 0,
-              max = 100,
-              value = c(1, 100)
             )
           )
         ),
@@ -130,7 +130,7 @@ body <- dashboardBody(
             title = "Heatmap",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("selectedItems"), plotOutput("heatmap")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("heatmapSelectedItems"), plotOutput("heatmap")
               )
             )
           ),
@@ -138,7 +138,7 @@ body <- dashboardBody(
             title = "PCA",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, uiOutput("pca")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("pcaSelectedItems"), uiOutput("pca")
               )
             )
           ),
@@ -146,7 +146,7 @@ body <- dashboardBody(
             title = "Volcano graph",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, uiOutput("volcano")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("volcanoSelectedItems"), uiOutput("volcano")
               )
             )
           )

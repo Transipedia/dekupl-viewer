@@ -73,6 +73,13 @@ server <- function(input, output, session) {
     return(s)
   })
 
+  outputSelectedItems <- function() {
+    d <- renderText({ 
+      paste("Selected items: ", nrow(dataTableFilters()))
+    })
+    return (d)
+  }
+
   #########################################################################################################################################
   ###  Outputs
   #########################################################################################################################################
@@ -154,16 +161,19 @@ server <- function(input, output, session) {
       data = dataTableFilters()
       if (nrow(data) > 0) {
         samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
+        conditions <- samplesCdtDF[,'condition']
         mat = as.matrix(data[, c(samples)])
         base_mean = rowMeans(mat)
         mat_scaled = t(apply(mat, 1, scale))
 
         formatSample = gsub("s\\d+_", "", colnames(mat))
-        ha = HeatmapAnnotation(df = data.frame(samples = formatSample))
+        haSamples = HeatmapAnnotation(df = data.frame(samples = formatSample))
+        haConditions = HeatmapAnnotation(df = data.frame(conditions = conditions))
 
         Heatmap(
           mat_scaled, name = "expression", km = 5, col = colorRamp2(c(-2, 0, 2), c("green", "white", "red")),
-          top_annotation = ha, top_annotation_height = unit(4, "mm"), 
+          top_annotation = haSamples, top_annotation_height = unit(4, "mm"), 
+          bottom_annotation = haConditions,
           show_row_names = FALSE, show_column_names = FALSE
         ) +
         Heatmap(base_mean, name = "base mean", show_row_names = FALSE, width = unit(5, "mm")) +
@@ -183,8 +193,27 @@ server <- function(input, output, session) {
     height=700, bg="transparent"
   )
 
-  output$selectedItems <- renderText({ 
-    paste("Selected items: ", nrow(dataTableFilters()))
-  })
+  output$heatmapSelectedItems <- outputSelectedItems()
+
+  ######################################  PCA page 
+
+  # output$pca <- <- renderPlot(
+  #   {
+  #     data = dataTableFilters()
+  #     res.pca <- prcomp(data, scale = TRUE)
+  #     fviz_pca_ind(res.pca,
+  #            col.ind = "cos2", # Colorer par le cos2
+  #            gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  #            repel = TRUE     
+  #            )
+
+  #   }
+  # )
+  
+  output$pcaSelectedItems <- outputSelectedItems()
+  
+  output$volcanoSelectedItems <- outputSelectedItems()
+
+
 
 }
