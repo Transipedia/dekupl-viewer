@@ -6,7 +6,7 @@ DE-kupl annotation Viewer is part of the DE-kupl package, and performs to make i
 
 #### Required dependencies
 
-* R (version >= version 3.2.3) with libraries `shiny`, `shinydashboard`, `ggplot2`, `optparse`, `DT`, `ComplexHeatmap`, `factoextra`
+* R (version >= version 3.2.3) with libraries `shiny`, `shinydashboard`, `ggplot2`, `optparse`, `DT`, `ComplexHeatmap`, `factoextra`, `calibrate`
 
 #### Install from the sources
 You just need to clone this project.

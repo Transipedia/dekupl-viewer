@@ -19,6 +19,7 @@ Rscript -e "install.packages('shinydashboard')" && \
 Rscript -e "install.packages('optparse')" && \
 Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('ComplexHeatmap')" && \
 Rscript -e "install.packages('factoextra')"
+RUN Rscript -e "install.packages('calibrate')"
 
 
 # Expose 8080 for Docker

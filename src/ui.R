@@ -143,10 +143,10 @@ body <- dashboardBody(
             )
           ),
           tabPanel(
-            title = "Volcano graph",
+            title = "Volcano plot",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, textOutput("volcanoSelectedItems"), plotOutput("volcano")
+                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("volcanoSelectedItems"), plotOutput("volcano")
               )
             )
           )

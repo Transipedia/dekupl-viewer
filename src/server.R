@@ -203,22 +203,25 @@ server <- function(input, output, session) {
   output$pca <- renderPlot(
     {
       data = dataTableFilters()
-      samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
-      mat = t(as.matrix(data[, c(samples)]))
+      if (nrow(data) > 0) {
+        samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
+        mat = t(as.matrix(data[, c(samples)]))
 
-      res.pca <- prcomp(mat, scale = TRUE)
-      # Graphique des individus.
-      fviz_pca_ind(
-        res.pca,
-        col.ind = "cos2", # Colore by cos2 ((qualité de représentation))
-        gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-        repel = TRUE
-      )
-      # Graphique des variables. Coloration en fonction de la contribution des variables. (Mais pas de header sur la mat transposée)
-      # fviz_pca_var(res.pca, col.var = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
-      # Biplot des individus et des variables
-      # fviz_pca_biplot(res.pca, repel = TRUE, col.var = "#2E9FDF", col.ind = "#696969")
-
+        res.pca <- prcomp(mat, scale = TRUE)
+        # Graphique des individus.
+        fviz_pca_ind(
+          res.pca,
+          col.ind = "cos2", # Colore by cos2 ((qualité de représentation))
+          gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+          repel = TRUE
+        )
+        # Graphique des variables. Coloration en fonction de la contribution des variables. (Mais pas de header sur la mat transposée)
+        # fviz_pca_var(res.pca, col.var = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
+        # Biplot des individus et des variables
+        # fviz_pca_biplot(res.pca, repel = TRUE, col.var = "#2E9FDF", col.ind = "#696969")
+      } else {
+        print('no data')
+      }
     },
     height=700, bg="transparent"
   )
@@ -226,6 +229,31 @@ server <- function(input, output, session) {
   output$pcaSelectedItems <- outputSelectedItems()
   
   ######################################  Volcano page
+  # Genes that are highly dysregulated are farther to the left and right sides, while highly significant changes appear higher on the plot.
+  output$volcano <- renderPlot(
+    {
+      data = dataTableFilters()
+      if (nrow(data) > 0) {
+        with(data, plot(log2FC, -log10(pvalue), pch=20, xlim=c(-2.5, 2)))
+
+        # Add colored points: red if du_pvalue (padj ?) <0.05, orange of log2FC>1, green if both)
+        with(subset(data, du_pvalue<.05 ), points(log2FC, -log10(pvalue), pch=20, col="red"))
+        with(subset(data, abs(log2FC)>1), points(log2FC, -log10(pvalue), pch=20, col="orange"))
+        with(subset(data, du_pvalue<.05 & abs(log2FC)>1), points(log2FC, -log10(pvalue), pch=20, col="green"))
+
+        # Label points with the textxy function from the calibrate plot
+        library(calibrate)
+        with(subset(data, du_pvalue<.05 & abs(log2FC)>1), textxy(log2FC, -log10(pvalue), labs=gene_symbol, cex=.8))
+        legend(x="topleft",
+          legend=c("du_pvalue < 0.05", "log2FC > 1", "both"),
+          col=c("red", "orange", "green"), box.lty=0, pch=20
+        )
+      } else {
+        print('no data')
+      }
+    },
+    height=700, bg="transparent"
+  )
 
   output$volcanoSelectedItems <- outputSelectedItems()
 
