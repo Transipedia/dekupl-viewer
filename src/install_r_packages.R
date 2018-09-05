@@ -1,0 +1,8 @@
+options(repos='http://cran.rstudio.com/')
+install.packages('shiny')
+install.packages('shinydashboard')
+install.packages('ggplot2')
+install.packages('optparse')
+install.packages('DT')
+install.packages('ComplexHeatmap')
+install.packages('dendextend')
