@@ -1,5 +1,5 @@
 # Basic secured-centos image
-FROM r-base:latest
+FROM r-base:3.5.1
 
 LABEL maintainer="Abdoulaye DIALLO abdoulaye.diallo@seq.one"
 LABEL maintainer="Dimitri Larue dimitri.larue@seq.one"
