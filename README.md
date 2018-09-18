@@ -24,9 +24,9 @@ Open a browser at this address `http://0.0.0.0:8080` and enjoy it.
 #### Run in virtual env (docker)
 You could also run the app in a docker virtual environnement.
 ```
-docker build -t dekupl-viewer:0.1 .
+docker pull transipedia/dekupl-viewer:0.1
 
-docker run --rm -i -v /[partitionA]:/partitionB]/:z -p 8080:8080 dekupl-viewer:0.1 -c /path/to/DiffContigsInfos.tsv -s /path/to/sample_conditions_full.tsv
+docker run --rm -i -v ${PWD}:/${PWD} -p 8080:8080 transipedia/dekupl-viewer:0.1 -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
 ``` 
 ### Tutorial & toys
 
