@@ -7,20 +7,34 @@ server <- function(input, output, session) {
   ###  load Data from input files
   #########################################################################################################################################
 
+
+  loadSamplesCdtfile <- function() {
+    d <- read.table(opt$sample, header=TRUE, sep="\t")
+    for (sample in d$sample) {
+      if (grepl("(^[0-9])|-", sample)) {
+        print ("ERROR: unexpected name of samples. Must not start with a number or contains a '-' character")
+        stop()
+      }
+    }
+    print ('sample conditions file dim :'); print(dim(d))
+    return (d)
+  }
+
   loadContigsfile <- function() {
     d <- read.table(opt$contig, header=TRUE)
     print ('contigs file dim :'); print(dim(d))
     return (d) 
   }
 
-  loadSamplesCdtfile <- function() {
-    d <- read.table(opt$sample, header=TRUE)
-    print ('sample conditions file dim :'); print(dim(d))
-    return (d) 
+  loadFiltersPresetfile <- function() {
+    # d <- read.table(opt$filters, header=TRUE)
+    # print ('filters preset file dim :'); print(dim(d))
+    # return (d) 
   }
 
   contigsDF <- loadContigsfile()
   samplesCdtDF <- loadSamplesCdtfile()
+  filtersPresetDF <- loadFiltersPresetfile()
 
   #########################################################################################################################################
   ###  Usual functions
@@ -51,11 +65,17 @@ server <- function(input, output, session) {
     return (newCdt)
   }
 
-  ### filter dataTable depending input filters
+  ######################################  filter dataTable depending input filters
   dataTableFilters <- reactive({
+    # print(input$preset)
+    # if (input$preset != '-') {
+    #   print('diff')
+    # }
+    if (input$switchToFilterMode) {
     s <- subset(
       contigsDF,
-      du_pvalue <= input$duPvalue &
+      pvalue >= input$pvalue[[1]] &
+      pvalue <= input$pvalue[[2]] &
       nb_splice >= input$nbSplice[[1]] &
       nb_splice <= input$nbSplice[[2]] &
       clipped_3p >= input$clipped3p[[1]] &
@@ -67,23 +87,37 @@ server <- function(input, output, session) {
       contig_size >= input$contigSize[[1]] &
       contig_size <= input$contigSize[[2]]
     )
+    } else {
+      s <- contigsDF
+    }
     # get cols we want to display
     samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = "")) # keep samples to be able to compute diff in boxplot
-    s <- s[,c(samples, "contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
+    s <- s[,c(samples, "contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "line_in_sam", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
     return(s)
   })
 
+  ######################################  reset - get all items without any filter. including NA values
+  # myProxy = DT::dataTableProxy('table')
+  # observeEvent(input$reset, {
+  #   print ("events click")
+  #   get cols we want to display
+  #   samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = "")) # keep samples to be able to compute diff in boxplot
+  #   s <- contigsDF[,c(samples, "contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
+  #   head(s)
+  #   replaceData(myProxy, s, rownames = FALSE)
+  # })
+
   outputSelectedItems <- function() {
-    d <- renderText({ 
-      paste("Selected items: ", nrow(dataTableFilters()))
+    d <- renderText({
+      paste("Selected items: ", nrow(dataTableFilters()), " / ", nrow(contigsDF))
     })
     return (d)
   }
 
   #########################################################################################################################################
-  ###  Outputs
+  ###  Main page Outputs
   #########################################################################################################################################
-  
+
   ######################################  Table page 
 
   # Set an event observable (on click) on table row, open a modal
@@ -151,8 +185,9 @@ server <- function(input, output, session) {
         # formatStyle('is_mapped', fontWeight = 'bold', color = styleEqual(c('true', 'false'), c('green', 'red')))  %>%
         formatStyle('pvalue', target = 'row', cursor = 'pointer')
     },
-    server = FALSE
+    server = TRUE
   )
+  output$datatableSelectedItems <- outputSelectedItems()
 
   ######################################  Heatmap page 
 
@@ -257,6 +292,39 @@ server <- function(input, output, session) {
 
   output$volcanoSelectedItems <- outputSelectedItems()
 
+#########################################################################################################################################
+###  Other Outputs
+#########################################################################################################################################
 
+######################################  Max  pvalue
+  output$max_pvalue <- renderText({
+    paste("Max value: ", max(contigsDF$pvalue, na.rm = TRUE))
+  })
+
+######################################  Max  clipped3p
+  output$max_clipped3p <- renderText({
+    paste("Max value: ", max(contigsDF$clipped_3p, na.rm = TRUE))
+  })
+
+######################################  Max  splice
+  output$max_splice <- renderText({
+    paste("Max value: ", max(contigsDF$nb_splice, na.rm = TRUE))
+  })
+
+######################################  Max  snv
+  output$max_snv <- renderText({
+    paste("Max value: ", max(contigsDF$nb_snv, na.rm = TRUE))
+  })
+
+######################################  Max  hit
+  output$max_hit <- renderText({
+    paste("Max value: ", max(contigsDF$nb_hit, na.rm = TRUE))
+  })
+
+######################################  Max  Contig
+  output$max_contig <- renderText({
+    paste("Max value: ", max(contigsDF$contig_size, na.rm = TRUE))
+  })
+  
 
 }

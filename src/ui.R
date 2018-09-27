@@ -2,15 +2,15 @@
 ### Design the dashboad, Make the header
 #########################################################################################################################################
 header <- dashboardHeader(
-  title = "DEkupl Annot dashboard",
-  dropdownMenu(
-    type = "messages",
-    messageItem(
-      from = "Support",
-      message = "The new server is ready.",
-      icon = icon("life-ring"),
-    )
-  )
+  title = "DEkupl Annot dashboard"
+  # dropdownMenu(
+  #   type = "messages",
+  #   messageItem(
+  #     from = "Support",
+  #     message = "The new server is ready.",
+  #     icon = icon("life-ring"),
+  #   )
+  # )
 )
 
 #########################################################################################################################################
@@ -34,40 +34,53 @@ body <- dashboardBody(
     tabItem(tabName = "annot",
       ######### Filters columns
       column(width = 3,
+        # fluidRow(
+        #   selectInput("preset", "Filter Presets", choices=as.character(list('-', 'splice', 'splice_DU', 'polyA', 'polyA_DU', 'antisense'))),  # choices=colnames(df)
+        #   hr()
+        # ),
+        # fluidRow(
+        #   actionButton("reset", "Get All"),
+        #   helpText("Get all items, including NA values")
+        # ),
+        fluidRow(
+          # helpText("Allows to Get all items, including NA values"),
+          checkboxInput("switchToFilterMode", "Disable/Activate filters", value = TRUE)
+        ),
         ## du_pvalue filter
         fluidRow(
           box(
-            width = 12, title = "DU Pvalue", status = "info", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            width = 12, title = "Pvalue", status = "primary", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
             sliderInput(
-              inputId = "duPvalue",
-              label="value",
+              inputId = "pvalue",
+              # label = textOutput("max_pvalue"),
+              label = "value",
               min = 0,
               max = 1,
               step = 0.00001,
-              value = 0.01
+              value = c(0,0.1)
             )
           )
         ),
         ## clipped_3p filter
         fluidRow(
           box(
-            width = 12, title = "3p clipped number", status = "info", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            width = 12, title = "3p clipped number", status = "primary", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
             sliderInput(
               inputId = "clipped3p",
-              label="value",
+              label = textOutput("max_clipped3p"),
               min = 0,
-              max = 100,
-              value = c(1, 100)
+              max = 200,
+              value = c(1, 200)
             )
           )
         ),
         ## nb_splice filter
         fluidRow(
           box(
-            width = 12, title = "Number of splices", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of splices", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
             sliderInput(
               inputId = "nbSplice",
-              label="value",
+              label = textOutput("max_splice"),
               min = 0,
               max = 10,
               value = c(0, 10)
@@ -77,36 +90,36 @@ body <- dashboardBody(
         ## nb_snv filter
         fluidRow(
           box(
-            width = 12, title = "Number of SNV", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of SNV", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
             sliderInput(
               inputId = "nbSnv",
-              label="value",
+              label = textOutput("max_snv"),
               min = 0,
-              max = 30,
-              value = c(0, 30)
+              max = 50,
+              value = c(0, 50)
             )
           )
         ),
         ## nb_hit filter
         fluidRow(
           box(
-            width = 12, title = "Number of Hits", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of Hits", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
             sliderInput(
               inputId = "nbHit",
-              label="value",
+              label = textOutput("max_hit"),
               min = 0,
-              max = 30,
-              value = c(0, 30)
+              max = 300,
+              value = c(0, 300)
             )
           )
         ),
         ## contig length filter
         fluidRow(
           box(
-            width = 12, title = "Contigs lenght", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Contig length", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
             sliderInput(
               inputId = "contigSize",
-              label="value",
+              label = textOutput("max_contig"),
               min = 1,
               max = 1200,
               step = 50,
@@ -122,7 +135,7 @@ body <- dashboardBody(
             title = "Table",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, DT::dataTableOutput("table")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12, strong(textOutput("datatableSelectedItems"), align = "center"), DT::dataTableOutput("table")
               )
             )
           ),
@@ -130,7 +143,7 @@ body <- dashboardBody(
             title = "Heatmap",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("heatmapSelectedItems"), plotOutput("heatmap")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, strong(textOutput("heatmapSelectedItems"), align = "center"), plotOutput("heatmap")
               )
             )
           ),
@@ -138,7 +151,7 @@ body <- dashboardBody(
             title = "PCA",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("pcaSelectedItems"), plotOutput("pca")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, strong(textOutput("pcaSelectedItems"), align = "center"), plotOutput("pca")
               )
             )
           ),
@@ -146,7 +159,7 @@ body <- dashboardBody(
             title = "Volcano plot",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("volcanoSelectedItems"), plotOutput("volcano")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, strong(textOutput("volcanoSelectedItems"), align = "center"), plotOutput("volcano")
               )
             )
           )
