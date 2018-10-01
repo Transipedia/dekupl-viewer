@@ -12,6 +12,9 @@ option_list = list(
     c("-s", "--sample"), type="character", default=NULL, help="sample conditions file (sample_conditions_full.tsv)"
   ),
   make_option(
+    c("-f", "--filters"), type="character", default='./preset-filters/transipedia.tsv', help="file which contains preset filters"
+  ),
+  make_option(
     c("-t", "--test"), action="store_true", default=NULL, help="run app with a test dataset"
   )
 )
@@ -56,6 +59,7 @@ library(shinydashboard)
 library(ComplexHeatmap)
 library(circlize)
 library(factoextra) # for the PCA
+library(shinycssloaders)
 
 app <- shinyAppDir("./")
 runApp(app, 8080, FALSE, '0.0.0.0')
