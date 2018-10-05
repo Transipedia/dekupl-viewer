@@ -39,6 +39,6 @@ Rscript app.R -t
 
 ### Profil of Filters
 
-It is possible to define a preset of filters in a TSV file and load it into the interface using option `-f`.
+It is possible to define a preset of filters in a TSV file and load it into the interface using option `-f`. Default file is `src/preset-filters/transipedia.tsv`.
 
 `Rscript app.R -h` for help.

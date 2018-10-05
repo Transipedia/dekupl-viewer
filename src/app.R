@@ -12,7 +12,7 @@ option_list = list(
     c("-s", "--sample"), type="character", default=NULL, help="sample conditions file (sample_conditions_full.tsv)"
   ),
   make_option(
-    c("-f", "--filters"), type="character", default='./preset-filters/transipedia.tsv', help="file which contains preset filters"
+    c("-f", "--filters"), type="character", default='./preset-filters/transipedia.tsv', help="file which contains preset filters (default: src/preset-filters/transipedia.tsv)"
   ),
   make_option(
     c("-t", "--test"), action="store_true", default=NULL, help="run app with a test dataset"
