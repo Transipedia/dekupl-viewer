@@ -35,7 +35,7 @@ body <- dashboardBody(
       ######### Filters columns
       column(width = 3,
         fluidRow(
-          selectInput("preset", "Filter Presets", choices=as.character(list('-', 'splice', 'splice_DU', 'polyA', 'polyA_DU', 'antisense', 'linkRNA', 'SNV', 'SNV_DU', 'intron', 'intron_DU', 'repeat', 'split', 'unmapped', 'custom'))),  # choices=colnames(df)
+          selectInput("preset", "Filter Presets", choices=as.character(list('-'))),
           hr()
         ),
         fluidRow(
@@ -157,6 +157,7 @@ body <- dashboardBody(
               box(
                 title = "contigs", status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
                 strong(textOutput("datatableSelectedItems"), align = "center"),
+                div(style="position:relative;left:88%;margin-bottom:10px;", actionButton("showCols", "Choose cols", icon = icon("glyphicon glyphicon-list", lib = "glyphicon"))),
                 withSpinner(DT::dataTableOutput("table"))
               )
             )

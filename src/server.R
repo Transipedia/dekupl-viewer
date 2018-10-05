@@ -19,13 +19,13 @@ server <- function(input, output, session) {
     return (d)
   }
   loadContigsfile <- function() {
-    d <- read.table(opt$contig, header=TRUE)
+    d <- read.table(opt$contig, header=TRUE, sep="\t")
     print ('contigs file dim :'); print(dim(d))
     return (d) 
   }
 
   loadFiltersPresetfile <- function() {
-    d <- read.table(opt$filters, header=TRUE)
+    d <- read.table(opt$filters, header=TRUE, sep="\t")
     print ('filters preset file dim :'); print(dim(d))
     return (d) 
   }
@@ -33,6 +33,10 @@ server <- function(input, output, session) {
   contigsDF <- loadContigsfile()
   samplesCdtDF <- loadSamplesCdtfile()
   filtersPresetDF <- loadFiltersPresetfile()
+
+  samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
+  excludedCols <- c(samples, "contig", "tag", "nb_merged_kmers")
+  currentCols = setdiff(names(contigsDF), excludedCols)
 
   minPvalues = min(contigsDF$pvalue, na.rm = TRUE);              maxPvalues = max(contigsDF$pvalue, na.rm = TRUE)
   minNbSplices = min(contigsDF$nb_splice, na.rm = TRUE);         maxNbSplices = max(contigsDF$nb_splice, na.rm = TRUE)
@@ -49,6 +53,8 @@ server <- function(input, output, session) {
   updateSliderInput(session, "nbSnv", value = NULL, min = minNbSnvs, max = maxNbSnvs)
   updateSliderInput(session, "nbHit", value = NULL, min = minNbHits, max = maxNbHits)
   updateSliderInput(session, "contigSize", value = NULL, min = minContigSizes, max = maxContigSizes)
+
+  updateSelectInput(session, "preset", choices = c('-', as.vector(rbind(as.character(filtersPresetDF$event)))))
 
   #########################################################################################################################################
   ###  Usual functions
@@ -74,8 +80,22 @@ server <- function(input, output, session) {
     }
     return (newCdt)
   }
+  
+  getColsIndex <- function(cols) {
+    l <- c()
+    for (i in cols) {
+      l <- c(l, which(colnames(contigsDF)==i) - 1)
+    }
+    return (l)
+  }
 
-  #  
+  hidedColsIndexes <- function(cols) {
+    if(!is.null(cols)) {
+      return (getColsIndex(setdiff(names(contigsDF), cols)))
+    }
+    return (getColsIndex(excludedCols))
+  }
+
   ######################################  filter dataTable depending input filters
   dataTableFilters <- reactive({
     # from classic filters
@@ -173,12 +193,12 @@ server <- function(input, output, session) {
     } else {
       s <- contigsDF
     }
-    # get cols we want to display
-    samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = "")) # keep samples to be able to compute diff in boxplot
-    s <- s[,c(samples, "contig", "tag", "contig_size", "chromosome", "start", "end", "gene_id", "gene_symbol", "gene_strand", "gene_biotype", "exonic", "intronic", "gene_is_diff", "cigar", "line_in_sam", "is_mapped", "pvalue", "du_pvalue", "du_stat", "meanA", "meanB", "log2FC", "nb_insertion", "nb_deletion", "nb_splice", "nb_snv", "clipped_3p", "clipped_5p", "is_clipped_3p", "is_clipped_5p", "query_cover", "alignment_identity", "nb_hit", "nb_mismatch", "strand", "as_gene_id", "as_gene_symbol", "as_gene_strand", "as_gene_biotype", "upstream_gene_id", "upstream_gene_strand", "upstream_gene_symbol", "upstream_gene_dist", "downstream_gene_id", "downstream_gene_strand", "downstream_gene_symbol", "downstream_gene_dist")]
+    # if(!is.null(input$select_cols)) {
+    #   currentCols = input$select_cols
+    # }
     return(s)
   })
-
+  
   ####################################### observe only numeric inputs to update sliders 
   observe({
     updateSliderInput(session, "pvalue", value = c(input$minPvalue, input$maxPvalue))
@@ -189,6 +209,24 @@ server <- function(input, output, session) {
     updateSliderInput(session, "contigSize", value = c(input$minContigSize, input$maxContigSize))
   })
 
+  #########################################################################################################################################
+  ###  Main page Outputs
+  #########################################################################################################################################
+
+  ####################################### Choose cols
+  observeEvent(input$showCols, {
+    showModal(modalDialog(
+      title = 'columns',
+      size = 'm',
+      checkboxGroupInput(inputId = "select_cols", 
+        label = "Select cols", 
+        choices = names(contigsDF),
+        selected = currentCols
+      )
+    ))
+  })
+
+  ####################################### selected items
   outputSelectedItems <- function() {
     d <- renderText({
       paste("Selected items: ", nrow(dataTableFilters()), " / ", nrow(contigsDF))
@@ -196,29 +234,40 @@ server <- function(input, output, session) {
     return (d)
   }
 
-  #########################################################################################################################################
-  ###  Main page Outputs
-  #########################################################################################################################################
-
-  ######################################  Table page 
-
+  ######################################  On Table line selection 
   # Set an event observable (on click) on table row, open a modal
   observeEvent(input$table_rows_selected, {
     showModal(
       modalDialog(
         title = selectedRowInfos(),
         size = 'l',
-        helpText("Contig: ", selectedRow()$contig),  # TODO: this must be multi lines
-        helpText("Tag: ", selectedRow()$tag),
         tabsetPanel(
           tabPanel(
-            title = "Contig vizualiser",
+            title = "Contig boxplot",
             fluidRow(
               plotOutput(outputId="boxplotInModal")
             ),
             downloadButton(outputId = "downloadboxplot", label = "Download")
+          ),
+          tabPanel(
+            title = "Contig Details",
+            fluidRow(
+              DT::dataTableOutput(outputId="contigDetails")
+            )
           )
         )
+      )
+    )
+  })
+  ## Contigs details
+  output$contigDetails <- DT::renderDataTable({
+     DT::datatable(
+      t(selectedRow()),
+      colnames = c('', ''),
+      selection = 'single',
+      options = list(
+        searching = FALSE,
+        paging = FALSE
       )
     )
   })
@@ -245,30 +294,28 @@ server <- function(input, output, session) {
     }
   )
 
-  ###  Build the main table dataframe
-  output$table <- DT::renderDataTable(
-    {
-      DT::datatable(
-        dataTableFilters(),
-        rownames = FALSE,
-        escape = FALSE,
-        selection = 'single',
-        options = list(
-          pageLength = 18,
-          columnDefs = list(list(
-            visible=FALSE,
-            targets=c(0 : (nrow(samplesCdtDF['sample']) + 1))   # to hide samples and contig + tag cols
-          ))
-        )
-      ) %>%
-        formatRound(c("pvalue", "meanA", "meanB", "log2FC", "query_cover", "alignment_identity"), 3) %>%
-        formatRound(c("du_pvalue", "du_stat"), 10) %>%
-        formatStyle(c('chromosome', 'gene_symbol', 'gene_biotype'), fontWeight = 'bold') %>% 
-        # formatStyle('is_mapped', fontWeight = 'bold', color = styleEqual(c('true', 'false'), c('green', 'red')))  %>%
-        formatStyle('pvalue', target = 'row', cursor = 'pointer')
-    },
-    server = TRUE
-  )
+  ##################################### Build the main table dataframe
+  output$table <- DT::renderDataTable({
+    DT::datatable(
+      dataTableFilters(),
+      rownames = FALSE,
+      escape = FALSE,
+      selection = 'single',
+      options = list(
+        pageLength = 15,
+        columnDefs = list(list(
+          visible=FALSE,
+          targets=hidedColsIndexes(input$select_cols)
+        ))
+      )
+    ) %>%
+    formatRound(c("pvalue", "meanA", "meanB", "log2FC", "query_cover", "alignment_identity"), 3) %>%
+    formatRound(c("du_pvalue", "du_stat"), 10) %>%
+    formatStyle(c('chromosome', 'gene_symbol', 'gene_biotype'), fontWeight = 'bold') %>% 
+    # formatStyle('is_mapped', fontWeight = 'bold', color = styleEqual(c('true', 'false'), c('green', 'red')))  %>%
+    formatStyle('pvalue', target = 'row', cursor = 'pointer')
+  }, server = TRUE )
+  
   output$datatableSelectedItems <- outputSelectedItems()
 
   ######################################  Heatmap page 
@@ -276,7 +323,6 @@ server <- function(input, output, session) {
   heatmap <- function() {
     data = dataTableFilters()
     if (nrow(data) > 0) {
-      samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
       conditions <- samplesCdtDF[,'condition']
       mat = as.matrix(data[, c(samples)])
       base_mean = rowMeans(mat)
@@ -336,21 +382,17 @@ server <- function(input, output, session) {
   pca <- function() {
     data = dataTableFilters()
     if (nrow(data) > 0) {
-      samples <- do.call(paste, c(as.list(samplesCdtDF['sample']), sep = ""))
+      
+      conditions <- samplesCdtDF[,'condition']
       mat = t(as.matrix(data[, c(samples)]))
 
       res.pca <- prcomp(mat, scale = TRUE)
       # Graphique des individus.
       fviz_pca_ind(
         res.pca,
-        col.ind = "cos2", # Colore by cos2 ((qualité de représentation))
-        gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+        col.ind = conditions,
         repel = TRUE
       )
-      # Graphique des variables. Coloration en fonction de la contribution des variables. (Mais pas de header sur la mat transposée)
-      # fviz_pca_var(res.pca, col.var = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), repel = TRUE)
-      # Biplot des individus et des variables
-      # fviz_pca_biplot(res.pca, repel = TRUE, col.var = "#2E9FDF", col.ind = "#696969")
     } else {
       print('no data')
     }
