@@ -40,7 +40,7 @@ This will create a conda environment dekupl (if missing) and install dekupl run 
 ### Run dekupl-viewer
 ```
 source activate dekupl
-dekupl-viewer index -g toy/references/GRCh38-chr22.fa.gz -a toy/references/GRCh38-chr22.gff.gz -i test_index
+dekupl-viewer -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
 ```
 
 
