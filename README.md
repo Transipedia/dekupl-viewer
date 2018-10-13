@@ -2,7 +2,7 @@
 
 DE-kupl annotation Viewer is part of the DE-kupl package, and performs to make interpretation of contigs annoted by DE-kupl annotation, using [R Shiny](https://shiny.rstudio.com/) framework.
 
-### Installation
+## Installation
 
 #### Required dependencies
 
@@ -21,7 +21,7 @@ Rscript app.R -c /path/to/DiffContigsInfos.tsv -s /path/to/sample_conditions_ful
 
 Open a browser at this address `http://0.0.0.0:8080` and enjoy it.
 
-### Run dekupl-viewer with conda
+## Run dekupl-viewer with conda
 #### Install conda (miniconda or anaconda)
 
 First you need to install conda, miniconda is harder to use because it comes with nothing installed
@@ -37,14 +37,14 @@ conda install -n dekupl -y -m --override-channels -c transipedia -c bioconda -c 
 ```
 This will create a conda environment dekupl (if missing) and install dekupl run inside, the order of the parameters is important.
 
-#### Run dekupl-viewer
+### Run dekupl-viewer
 ```
 source activate dekupl
 dekupl-viewer index -g toy/references/GRCh38-chr22.fa.gz -a toy/references/GRCh38-chr22.gff.gz -i test_index
 ```
 
 
-#### Run in virtual env (docker)
+## Run in virtual env (docker)
 You could also run the app in a docker virtual environnement.
 ```
 docker pull transipedia/dekupl-viewer:latest
@@ -52,7 +52,7 @@ docker pull transipedia/dekupl-viewer:latest
 docker run --rm -i -v ${PWD}:/${PWD} -p 8080:8080 transipedia/dekupl-viewer:latest -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
 ```
 
-#### Run in virtual env (singularity)
+## Run in virtual env (singularity)
 You could also run the app in a docker virtual environnement.
 ```
 singularity pull docker://transipedia/dekupl-viewer
@@ -60,7 +60,7 @@ singularity pull docker://transipedia/dekupl-viewer
 ./dekupl-viewer.simg -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
 ```
 
-### Toys dataset
+## Toys dataset
 
 Toy files are available with this repository to test the app.
 
@@ -69,7 +69,7 @@ cd src
 Rscript app.R -t
 ```
 
-### Profil of Filters
+## Profil of Filters
 
 It is possible to define a preset of filters in a TSV file and load it into the interface using option `-f`. Default file is `src/preset-filters/transipedia.tsv`.
 
