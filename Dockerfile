@@ -15,11 +15,6 @@ RUN Rscript install_r_packages.R
 
 EXPOSE 8080
 
-LABEL service_type="dekupl" service_name="viewer"
-
-COPY files/health /usr/local/bin/health
-HEALTHCHECK --start-period=4s --interval=10s --timeout=10s --retries=3 CMD /usr/local/bin/health
-
 COPY . .
 WORKDIR /dekupl/src
 
