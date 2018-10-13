@@ -19,7 +19,30 @@ cd src
 Rscript app.R -c /path/to/DiffContigsInfos.tsv -s /path/to/sample_conditions_full.tsv
 ```
 
-Open a browser at this address `http://0.0.0.0:8080` and enjoy it. 
+Open a browser at this address `http://0.0.0.0:8080` and enjoy it.
+
+### Run dekupl-viewer with conda
+#### Install conda (miniconda or anaconda)
+
+First you need to install conda, miniconda is harder to use because it comes with nothing installed
+
+```
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+```
+#### Install dekupl-viewer
+
+```
+conda install -n dekupl -y -m --override-channels -c transipedia -c bioconda -c conda-forge -c https://repo.anaconda.com/pkgs/main -c https://repo.anaconda.com/pkgs/free -c https://repo.anaconda.com/pkgs/pro dekupl-viewer
+```
+This will create a conda environment dekupl (if missing) and install dekupl run inside, the order of the parameters is important.
+
+#### Run dekupl-viewer
+```
+source activate dekupl
+dekupl-viewer index -g toy/references/GRCh38-chr22.fa.gz -a toy/references/GRCh38-chr22.gff.gz -i test_index
+```
+
 
 #### Run in virtual env (docker)
 You could also run the app in a docker virtual environnement.
@@ -27,7 +50,16 @@ You could also run the app in a docker virtual environnement.
 docker pull transipedia/dekupl-viewer:latest
 
 docker run --rm -i -v ${PWD}:/${PWD} -p 8080:8080 transipedia/dekupl-viewer:latest -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
-``` 
+```
+
+#### Run in virtual env (singularity)
+You could also run the app in a docker virtual environnement.
+```
+singularity pull docker://transipedia/dekupl-viewer
+
+./dekupl-viewer.simg -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
+```
+
 ### Toys dataset
 
 Toy files are available with this repository to test the app.
