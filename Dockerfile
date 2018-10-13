@@ -16,6 +16,5 @@ RUN Rscript install_r_packages.R
 EXPOSE 8080
 
 COPY . .
-WORKDIR /dekupl/src
 
-ENTRYPOINT ["Rscript", "app.R"]
+ENTRYPOINT ["src/dekupl-viewer.sh"]
