@@ -2,15 +2,15 @@
 ### Design the dashboad, Make the header
 #########################################################################################################################################
 header <- dashboardHeader(
-  title = "DEkupl Annot dashboard",
-  dropdownMenu(
-    type = "messages",
-    messageItem(
-      from = "Support",
-      message = "The new server is ready.",
-      icon = icon("life-ring"),
-    )
-  )
+  title = "DEkupl Annot dashboard"
+  # dropdownMenu(
+  #   type = "messages",
+  #   messageItem(
+  #     from = "Support",
+  #     message = "The new server is ready.",
+  #     icon = icon("life-ring"),
+  #   )
+  # )
 )
 
 #########################################################################################################################################
@@ -34,84 +34,117 @@ body <- dashboardBody(
     tabItem(tabName = "annot",
       ######### Filters columns
       column(width = 3,
-        ## du_pvalue filter
+        fluidRow(
+          selectInput("preset", "Filter Presets", choices=as.character(list('-'))),
+          hr()
+        ),
+        fluidRow(
+          # helpText("Allows to Get all items, including NA values"),
+          checkboxInput("switchToFilterMode", "Disable/Activate filters", value = TRUE)
+        ),
+        ## pvalue filter
         fluidRow(
           box(
-            width = 12, title = "DU Pvalue", status = "info", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            width = 12, title = "Pvalue", status = "primary", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            withSpinner(plotOutput('pvaluePlot', height = "50px")),
             sliderInput(
-              inputId = "duPvalue",
-              label="value",
+              inputId = "pvalue",
+              label = "values",
               min = 0,
               max = 1,
               step = 0.00001,
-              value = 0.01
-            )
+              value = c(0,0.1)
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minPvalue", "min", value= 0, step = 0.001)),
+            div(style="display:inline-block; width: 49%", numericInput("maxPvalue", "max", value= 0.1, step = 0.001))
           )
         ),
         ## clipped_3p filter
         fluidRow(
           box(
-            width = 12, title = "3p clipped number", status = "info", solidHeader = TRUE, collapsible = TRUE, "some description", br(),
+            width = 12, title = "3p clipped number", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            withSpinner(plotOutput('clipped3pPlot', height = "50px")),
             sliderInput(
               inputId = "clipped3p",
-              label="value",
+              label = "values",
               min = 0,
-              max = 100,
-              value = c(1, 100)
-            )
+              max = 200,
+              value = c(0, 200)
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minClipped3p", "min", value= 0)),
+            div(style="display:inline-block; width: 49%", numericInput("maxClipped3p", "max", value= 200))
           )
         ),
         ## nb_splice filter
         fluidRow(
           box(
-            width = 12, title = "Number of splices", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of splices", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            withSpinner(plotOutput('nbSplicePlot', height = "50px")),
             sliderInput(
               inputId = "nbSplice",
-              label="value",
+              label = "values",
               min = 0,
               max = 10,
               value = c(0, 10)
-            )
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minNbSplice", "min", value= 0)),
+            div(style="display:inline-block; width: 49%", numericInput("maxNbSplice", "max", value= 10))
           )
         ),
         ## nb_snv filter
         fluidRow(
           box(
-            width = 12, title = "Number of SNV", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of SNV", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            withSpinner(plotOutput('nbSnvPlot', height = "50px")),
             sliderInput(
               inputId = "nbSnv",
-              label="value",
+              label = "values",
               min = 0,
-              max = 30,
-              value = c(0, 30)
-            )
+              max = 50,
+              value = c(0, 50)
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minNbSnv", "min", value= 0)),
+            div(style="display:inline-block; width: 49%", numericInput("maxNbSnv", "max", value= 50))
           )
         ),
         ## nb_hit filter
         fluidRow(
           box(
-            width = 12, title = "Number of Hits", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Number of Hits", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            withSpinner(plotOutput('nbHitPlot', height = "50px")),
             sliderInput(
               inputId = "nbHit",
-              label="value",
+              label = "values",
               min = 0,
-              max = 30,
-              value = c(0, 30)
-            )
+              max = 300,
+              value = c(0, 300)
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minNbHit", "min", value= 0)),
+            div(style="display:inline-block; width: 49%", numericInput("maxNbHit", "max", value= 300))
           )
         ),
         ## contig length filter
         fluidRow(
           box(
-            width = 12, title = "Contigs lenght", status = "info", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            width = 12, title = "Contig length", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "some description", br(),
+            withSpinner(plotOutput('contigSizePlot', height = "50px")),
             sliderInput(
               inputId = "contigSize",
-              label="value",
+              label = "values",
               min = 1,
               max = 1200,
               step = 50,
-              value = c(30, 1200)
-            )
+              value = c(1, 1200)
+            ),
+            div(style="display:inline-block; width: 49%", numericInput("minContigSize", "min", value= 1)),
+            div(style="display:inline-block; width: 49%", numericInput("maxContigSize", "max", value= 1200))
+          )
+        ),
+        ## custom filter
+        fluidRow(
+          box(
+            width = 12, title = "Customized filter", status = "primary", solidHeader = TRUE, collapsible = TRUE, collapsed = TRUE, "Free R code. exemple: grepl('(AATAAA|ATTAAA|AGTAAA|TATAAA).*AAAAA$', contig)", br(),
+            textInput("customFilter", "Input text")
           )
         )
       ),
@@ -122,7 +155,10 @@ body <- dashboardBody(
             title = "Table",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = TRUE, width = 12, DT::dataTableOutput("table")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
+                strong(textOutput("datatableSelectedItems"), align = "center"),
+                div(style="position:relative;left:88%;margin-bottom:10px;", actionButton("showCols", "Choose cols", icon = icon("glyphicon glyphicon-list", lib = "glyphicon"))),
+                withSpinner(DT::dataTableOutput("table"))
               )
             )
           ),
@@ -130,7 +166,10 @@ body <- dashboardBody(
             title = "Heatmap",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("heatmapSelectedItems"), plotOutput("heatmap")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800,
+                strong(textOutput("heatmapSelectedItems"), align = "center"),
+                # downloadButton(outputId = "downloadHeatmap", label = "Download"),
+                withSpinner(plotOutput("heatmap"))
               )
             )
           ),
@@ -138,7 +177,10 @@ body <- dashboardBody(
             title = "PCA",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("pcaSelectedItems"), plotOutput("pca")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800,
+                strong(textOutput("pcaSelectedItems"), align = "center"),
+                div(style="position:relative;left:90%", downloadButton(outputId = "downloadPCA", label = "Download")),
+                withSpinner(plotOutput("pca"))
               )
             )
           ),
@@ -146,7 +188,10 @@ body <- dashboardBody(
             title = "Volcano plot",
             fluidRow(
               box(
-                title = "contigs", status = "info", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800, textOutput("volcanoSelectedItems"), plotOutput("volcano")
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800,
+                strong(textOutput("volcanoSelectedItems"), align = "center"),
+                div(style="position:relative;left:90%", downloadButton(outputId = "downloadVolcano", label = "Download")),
+                withSpinner(plotOutput("volcano"))
               )
             )
           )

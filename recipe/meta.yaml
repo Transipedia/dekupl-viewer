@@ -1,0 +1,30 @@
+package:
+  name: dekupl-viewer
+  version: {{ environ.get('GIT_DESCRIBE_TAG', '0.0.0') }}
+
+source:
+  path: ..
+
+build:
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+  rpaths:
+    - lib/
+    - lib/R/lib/
+
+requirements:
+  run:
+    - r-shiny
+    - r-shinydashboard
+    - r-ggplot2
+    - r-optparse
+    - r-dt
+    - r-dendextend
+    - r-shinycssloaders
+    - r-factoextra
+    - r-calibrate
+    - bioconductor-complexheatmap
+
+about:
+  home: https://github.com/Transipedia/dekupl-viewer
+  license: MIT
+  license_file: LICENSE
