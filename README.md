@@ -1,3 +1,5 @@
+![dekupl-viewer-logo](dekupl-viewer-logo.png)
+
 # DE-kupl Annotation Viewer
 
 DE-kupl annotation Viewer is part of the DE-kupl package, and performs to make interpretation of contigs annoted by DE-kupl annotation, using [R Shiny](https://shiny.rstudio.com/) framework.
