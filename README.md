@@ -64,7 +64,7 @@ singularity pull docker://transipedia/dekupl-viewer
 ./dekupl-viewer.simg -c ${PWD}/toy/DiffContigsInfos.tsv -s ${PWD}/toy/sample_conditions_full.tsv
 ```
 
-## Toys dataset
+## Toy dataset
 
 Toy files are available with this repository to test the app.
 
@@ -73,7 +73,7 @@ cd src
 Rscript app.R -t
 ```
 
-## Profil of Filters
+## Profile of Filters
 
 It is possible to define a preset of filters in a TSV file and load it into the interface using option `-f`. Default file is `src/preset-filters/transipedia.tsv`.
 
