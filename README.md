@@ -1,6 +1,6 @@
 ![dekupl-viewer-logo](dekupl-viewer-logo.png)
 
-# DE-kupl Annotation Viewer
+# DE-kupl Annotation Viewer [![pipeline status](https://gitlab.com/transipedia/dekupl-viewer/badges/master/pipeline.svg)](https://gitlab.com/transipedia/dekupl-viewer/commits/master) [![docker pull](https://img.shields.io/docker/pulls/transipedia/dekupl-viewer.svg)](https://hub.docker.com/r/transipedia/dekupl-viewer/) [![conda install](https://anaconda.org/transipedia/dekupl-viewer/badges/downloads.svg)](https://anaconda.org/Transipedia/dekupl-viewer)
 
 DE-kupl annotation Viewer is part of the DE-kupl package, and performs to make interpretation of contigs annoted by DE-kupl annotation, using [R Shiny](https://shiny.rstudio.com/) framework.
 
