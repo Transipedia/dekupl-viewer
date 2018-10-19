@@ -16,7 +16,12 @@ delivery-conda:
     - conda create -n build anaconda-client conda-build
     - source activate build
     - conda info -a
-    - conda build --user transipedia --token $ANACONDA_TOKEN recipe
+    - export LINUX_CONDA_FILENAME=$(conda build recipe --output --output-folder build)
+    - conda build --no-anaconda-upload --output-folder build recipe
+    - conda convert -p osx-64 -o build "$LINUX_CONDA_FILENAME"
+    - anaconda -t "$ANACONDA_TOKEN" upload -u transipedia "$LINUX_CONDA_FILENAME"
+    - anaconda -t "$ANACONDA_TOKEN" upload -u transipedia "${LINUX_CONDA_FILENAME/linux-64/osx-64}"
+
 
 delivery-docker:
   image: docker:latest
