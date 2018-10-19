@@ -8,10 +8,10 @@ DE-kupl annotation Viewer is part of the DE-kupl package, and performs to make i
 
 - [Usage](#usage)
 - [Installation](#installation)
-  - [Option 1: Install with conda](#option-1-install-with-conda)
-  - [Option 2: Use dekupl-viewer with Docker](#option-2-use-dekupl-viewer-with-docker)
-  - [Option 3: Use dekupl-viewer with singularity](#option-3-use-dekupl-viewer-with-singularity)
-  - [Option 4: Install from the sources (not recommended)](#option-4-install-from-the-sources-not-recommended)
+    - [Option 1: Install with conda](#option-1-install-with-conda)
+    - [Option 2: Use dekupl-viewer with Docker](#option-2-use-dekupl-viewer-with-docker)
+    - [Option 3: Use dekupl-viewer with singularity](#option-3-use-dekupl-viewer-with-singularity)
+    - [Option 4: Install from the sources (not recommended)](#option-4-install-from-the-sources-not-recommended)
 - [Toy dataset](#toy-dataset)
 - [Profile of filters](#profile-of-filters)
 
@@ -35,14 +35,14 @@ Open a browser at this address `http://0.0.0.0:8080` and enjoy it.
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
     bash Miniconda3-latest-Linux-x86_64.sh
     ``` 
-- **Step 2: Install dekupl-viewer**. This will create a dekupl conda environment (if missing) and install dekupl-run inside. The order of parameters is important.
+- **Step 2: Install dekupl-viewer**. This will create a dekupl conda environment (if missing) and install dekupl-viewer inside. The order of parameters is important.
     ```
     conda install -n dekupl -y -m --override-channels -c transipedia \
      -c bioconda -c conda-forge -c https://repo.anaconda.com/pkgs/main \
      -c https://repo.anaconda.com/pkgs/free \
      -c https://repo.anaconda.com/pkgs/pro dekupl-viewer
     ```
-- **Step 3: Run dekupl-viewer**. We first activate the conda environement where dekupl-run was installed, then we run the software.
+- **Step 3: Run dekupl-viewer**. We first activate the conda environement where dekupl-viewer was installed, then we run the software.
     ```
     source activate dekupl
     dekupl-viewer -c DiffContigsInfos.tsv -s sample_conditions_full.tsv
@@ -67,7 +67,7 @@ Open a browser at this address `http://0.0.0.0:8080` and enjoy it.
 
 One can create a singularity container from the docker image. Two methods are available, they should both work. 
 
-A difference with docker image is that with Singularity, you don't need to mount any volume, but you must have your config.json and your inputs file in the directory where you are running dekupl-run.
+A difference with docker image is that with Singularity, you don't need to mount any volume, but you must have your config.json and your inputs file in the directory where you are running dekupl-viewer.
 
 ```
 singularity pull docker://transipedia/dekupl-viewer
@@ -76,7 +76,7 @@ singularity pull docker://transipedia/dekupl-viewer
 
 ### Option 4: Install from the sources (not recommended)
 
-- **Step 1: Install dependancies**. Before using Dekupl-run, install these dependencies:
+- **Step 1: Install dependancies**. Before using Dekupl-viewer, install these dependencies:
     - R (version >= version 3.3.2)
     - R packages; `Rscript install_r_packages.R`
 - **Step 2: Clone this repository including submodules.**
