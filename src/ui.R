@@ -180,7 +180,7 @@ body <- dashboardBody(
               box(
                 title = "contigs", status = "primary", solidHeader = TRUE, collapsible = TRUE, width = 12,
                 strong(textOutput("datatableSelectedItems"), align = "center"),
-                div(style="position:relative;left:88%;margin-bottom:10px;", actionButton("showCols", "Choose cols", icon = icon("glyphicon glyphicon-list", lib = "glyphicon"))),
+                div(style="position:relative;margin-bottom:10px;", actionButton("showCols", "Choose cols", icon = icon("glyphicon glyphicon-list", lib = "glyphicon")), downloadButton(outputId = "downloadTable", label = "Download")),
                 withSpinner(DT::dataTableOutput("table"))
               )
             )

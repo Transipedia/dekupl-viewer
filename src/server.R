@@ -246,6 +246,16 @@ server <- function(input, output, session) {
     ))
   })
 
+  ####################################### Download table
+  output$downloadTable <- downloadHandler(
+    filename = function() {
+      paste("selected_contigs",".tsv", sep = "")
+    },
+    content = function(file) {
+      write.table(dataTableFilters(), file = file, sep = "\t", col.names = TRUE, qmethod = "double", row.names = FALSE)
+    }
+  )
+
   ####################################### selected items
   outputSelectedItems <- function() {
     d <- renderText({
@@ -321,15 +331,13 @@ server <- function(input, output, session) {
       rownames = FALSE,
       escape = FALSE,
       selection = 'single',
-      extensions = 'Buttons',
       options = list(
         pageLength = 15,
         columnDefs = list(list(
           visible=FALSE,
           targets=hidedColsIndexes(input$select_cols)
         )),
-        dom = 'Bfrtip',
-        buttons = c('csv', 'excel', 'copy')
+        dom = 'Bfrtip'
       )
     ) %>%
     formatRound(c("pvalue", "meanA", "meanB", "log2FC", "query_cover", "alignment_identity"), 3) %>%
