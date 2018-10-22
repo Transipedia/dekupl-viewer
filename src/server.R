@@ -109,7 +109,6 @@ server <- function(input, output, session) {
     inputContigSizeMin <- input$contigSize[[1]];      inputContigSizeMax <- input$contigSize[[2]]
     customizedFilter   <- if (input$customFilter != "") input$customFilter else TRUE          # this is R code from interface
 
-    print(paste("IS MAPPED FILTER VALUE", input$isMapped, sep = " "))
     # these values are defined in preset filters file. (transipedia.tsv)
     isMapped    <- if(input$isMapped != "NA") as.logical(input$isMapped) else c(FALSE, TRUE, NA)
     geneIsDiff  <- if(input$geneIsDiff != "NA") as.logical(input$geneIsDiff) else c(FALSE, TRUE, NA)
@@ -118,8 +117,6 @@ server <- function(input, output, session) {
     isExonic    <- if(input$isExonic != "NA") as.logical(input$isExonic) else c(FALSE, TRUE, NA)
     isIntronic  <- if(input$isIntronic != "NA") input$isIntronic else c(FALSE, TRUE, NA)
     customizedPresetFilter <- TRUE # this is R code defined in preset-filters file, column other (transipedia.tsv)
-
-    print(paste("IS MAPPED FILTER VALUE OR NA", isMapped, sep = " "))
 
     if (input$preset != '-') {
       filterPreset           <- filtersPresetDF[which(filtersPresetDF$event == input$preset),]
@@ -206,8 +203,6 @@ server <- function(input, output, session) {
       updateSliderInput(session, "nbHit", value = c(inputNbHitMin, inputNbHitMax))
       updateSliderInput(session, "contigSize", value = c(inputContigSizeMin, inputContigSizeMax))
       updateTextInput(session, "customFilter", value = filterPreset$other)
-
-      print(paste("TOTO: ", inputHasGene))
 
       # Binary operations
       updateRadioButtons(session, "isIntronic", selected = toString(inputIsIntronic))
