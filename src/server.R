@@ -97,66 +97,72 @@ server <- function(input, output, session) {
     return (getColsIndex(excludedCols))
   }
 
+  getFilterValues <- function() {
+    f <- list(
+      "inputPvalueMin"      = input$pvalue[[1]],
+      "inputPvalueMax"      = input$pvalue[[2]],
+      "inputDuPvalueMin"    = input$duPvalue[[1]],
+      "inputDuPvalueMax"    = input$duPvalue[[2]],
+      "inputNbSpliceMin"    = input$nbSplice[[1]],
+      "inputNbSpliceMax"    = input$nbSplice[[2]],
+      "inputClipped3pMin"   = input$clipped3p[[1]],
+      "inputClipped3pMax"   = input$clipped3p[[2]],
+      "inputNbSnvMin"       = input$nbSnv[[1]],
+      "inputNbSnvMax"       = input$nbSnv[[2]],
+      "inputNbHitMin"       = input$nbHit[[1]],
+      "inputNbHitMax"       = input$nbHit[[2]],
+      "inputContigSizeMin"  = input$contigSize[[1]],
+      "inputContigSizeMax"  = input$contigSize[[2]],
+      "customizedFilter"    = if (input$customFilter != "") input$customFilter else TRUE,
+      "isMapped"            = if(input$isMapped != "NA") as.logical(input$isMapped) else c(FALSE, TRUE, NA),
+      "geneIsDiff"          = if(input$geneIsDiff != "NA") as.logical(input$geneIsDiff) else c(FALSE, TRUE, NA),
+      "hasGene"             = if(input$hasGene != "NA") as.logical(input$hasGene) else c(FALSE, TRUE),
+      "hasASGene"           = if(input$hasASGene != "NA") as.logical(input$hasASGene) else c(FALSE, TRUE),
+      "isExonic"            = if(input$isExonic != "NA") as.logical(input$isExonic) else c(FALSE, TRUE, NA),
+      "isIntronic"          = if(input$isIntronic != "NA") input$isIntronic else c(FALSE, TRUE, NA)
+    )
+    return(f)
+  }
+
+  filterToString <- function() {
+    f = getFilterValues()
+    # s <- sprintf(
+    #   "#pvalue: [%f, %f]\n#nb splice: [%f, %f]\n#is intronic: %s\n",
+    #   f$inputPvalueMin, f$inputPvalueMax, f$inputNbSpliceMin, f$inputNbSpliceMax, input$isIntronic
+    # )
+    
+    s <- sprintf(
+      "#pvalue: [%f, %f]\n#nb splice: [%f, %f]\n#clipped 3p: [%f, %f]\n#nb snv: [%f, %f]\n#nb hit: [%f, %f]\n#contig size: [%f, %f]\n#du pvalue: [%f, %f]\n#is mapped: %s\n#gene is diff: %s\n#has gene: %s\n#has AS gene: %s\n#is exonic: %s\n#is intronic: %s\n#custom filter: %s",
+      f$inputPvalueMin, f$inputPvalueMax, f$inputNbSpliceMin, f$inputNbSpliceMax, f$inputClipped3pMin, f$inputClipped3pMax, f$inputNbSnvMin, f$inputNbSnvMax, f$inputNbHitMin, f$inputNbHitMax, f$inputContigSizeMin, f$inputContigSizeMax, f$inputDuPvalueMin, f$inputDuPvalueMax, input$isMapped, input$geneIsDiff, input$hasGene, input$hasASGene, input$isExonic, input$isIntronic, f$customizedFilter
+    )
+
+    return(s)
+  }
+
   ######################################  filter dataTable depending input filters
   dataTableFilters <- reactive({
-    # from classic filters
-    inputPvalueMin     <- input$pvalue[[1]];          inputPvalueMax     <- input$pvalue[[2]]
-    inputDuPvalueMin   <- input$duPvalue[[1]];        inputDuPvalueMax   <- input$duPvalue[[2]]
-    inputNbSpliceMin   <- input$nbSplice[[1]];        inputNbSpliceMax   <- input$nbSplice[[2]]
-    inputClipped3pMin  <- input$clipped3p[[1]];       inputClipped3pMax  <- input$clipped3p[[2]]
-    inputNbSnvMin      <- input$nbSnv[[1]];           inputNbSnvMax      <- input$nbSnv[[2]]
-    inputNbHitMin      <- input$nbHit[[1]];           inputNbHitMax      <- input$nbHit[[2]]
-    inputContigSizeMin <- input$contigSize[[1]];      inputContigSizeMax <- input$contigSize[[2]]
-    customizedFilter   <- if (input$customFilter != "") input$customFilter else TRUE          # this is R code from interface
 
-    # these values are defined in preset filters file. (transipedia.tsv)
-    isMapped    <- if(input$isMapped != "NA") as.logical(input$isMapped) else c(FALSE, TRUE, NA)
-    geneIsDiff  <- if(input$geneIsDiff != "NA") as.logical(input$geneIsDiff) else c(FALSE, TRUE, NA)
-    hasGene     <- if(input$hasGene != "NA") as.logical(input$hasGene) else c(FALSE, TRUE)
-    hasASGene   <- if(input$hasASGene != "NA") as.logical(input$hasASGene) else c(FALSE, TRUE)
-    isExonic    <- if(input$isExonic != "NA") as.logical(input$isExonic) else c(FALSE, TRUE, NA)
-    isIntronic  <- if(input$isIntronic != "NA") input$isIntronic else c(FALSE, TRUE, NA)
-    customizedPresetFilter <- TRUE # this is R code defined in preset-filters file, column other (transipedia.tsv)
+    filterValues <- getFilterValues()
 
-    if (input$preset != '-') {
-      filterPreset           <- filtersPresetDF[which(filtersPresetDF$event == input$preset),]
-      inputDuPvalueMin       <- if (!is.na(filterPreset$du_pvalue_min)) filterPreset$du_pvalue_min else minDuPvalues
-      inputDuPvalueMax       <- if (!is.na(filterPreset$du_pvalue_max)) filterPreset$du_pvalue_max else maxDuPvalues
-      customizedPresetFilter <- if (!is.na(filterPreset$other)) c(filterPreset$other) else TRUE
-    }
-
-    cat(sprintf(
-      "\npvalue: [%f, %f]\nnb splice: [%f, %f]\nclipped 3p: [%f, %f]\nnb snv: [%f, %f]\nnb hit: [%f, %f]\ncontig size: [%f, %f]\ndu pvalue: [%f, %f]\ncustom filter: %s\n",
-      inputPvalueMin, inputPvalueMax, inputNbSpliceMin, inputNbSpliceMax, inputClipped3pMin, inputClipped3pMax, inputNbSnvMin, inputNbSnvMax, inputNbHitMin, inputNbHitMax, inputContigSizeMin, inputContigSizeMax, inputDuPvalueMin, inputDuPvalueMax, input$customFilter
-    ))
-    
-    # update UI numeric input
-    updateNumericInput(session, "minPvalue", value = inputPvalueMin);         updateNumericInput(session, "maxPvalue", value = inputPvalueMax)
-    updateNumericInput(session, "minDuPvalue", value = inputDuPvalueMin);     updateNumericInput(session, "maxDuPvalue", value = inputDuPvalueMax)
-    updateNumericInput(session, "minNbSplice", value = inputNbSpliceMin);     updateNumericInput(session, "maxNbSplice", value = inputNbSpliceMax)
-    updateNumericInput(session, "minClipped3p", value = inputClipped3pMin);   updateNumericInput(session, "maxClipped3p", value = inputClipped3pMax)
-    updateNumericInput(session, "minNbSnv", value = inputNbSnvMin);           updateNumericInput(session, "maxNbSnv", value = inputNbSnvMax)
-    updateNumericInput(session, "minNbHit", value = inputNbHitMin);           updateNumericInput(session, "maxNbHit", value = inputNbHitMax)
-    updateNumericInput(session, "minContigSize", value = inputContigSizeMin); updateNumericInput(session, "maxContigSize", value = inputContigSizeMax)
+    cat(filterToString())
     
     # get subset with filters
     s <- subset(
       contigsDF,
-      ((pvalue >= inputPvalueMin & pvalue <= inputPvalueMax) | (input$pvalueKeepNA & is.na(pvalue))) &
-      ((du_pvalue >= inputDuPvalueMin & du_pvalue <= inputDuPvalueMax)  | (input$duPvalueKeepNA & is.na(du_pvalue))) &
-      ((nb_splice >= inputNbSpliceMin & nb_splice <= inputNbSpliceMax) | (input$nbSpliceKeepNA & is.na(nb_splice))) &
-      ((clipped_3p >= inputClipped3pMin & clipped_3p <= inputClipped3pMax) | (input$clipped3pKeepNA & is.na(clipped_3p))) &
-      ((nb_snv >= inputNbSnvMin & nb_snv <= inputNbSnvMax) | (input$nbSnvKeepNA & is.na(nb_snv))) &
-      ((nb_hit >= inputNbHitMin & nb_hit <= inputNbHitMax) | (input$nbHitKeepNA & is.na(nb_hit))) &
-      ((contig_size >= inputContigSizeMin & contig_size <= inputContigSizeMax) | (input$contigSizeKeepNA & is.na(contig_size))) &
-      is.element(gene_is_diff, geneIsDiff) &
-      is.element(!is.na(gene_id), hasGene) &
-      is.element(!is.na(as_gene_id), hasASGene) &
-      is.element(is_mapped, isMapped) &
-      is.element(exonic, isExonic) &
-      is.element(intronic, isIntronic) &
-      eval(parse(text = customizedFilter)) & 
-      eval(parse(text = customizedPresetFilter))
+      ((pvalue      >= filterValues$inputPvalueMin & pvalue           <= filterValues$inputPvalueMax)     | (input$pvalueKeepNA & is.na(pvalue))) &
+      ((du_pvalue   >= filterValues$inputDuPvalueMin & du_pvalue      <= filterValues$inputDuPvalueMax)   | (input$duPvalueKeepNA & is.na(du_pvalue))) &
+      ((nb_splice   >= filterValues$inputNbSpliceMin & nb_splice      <= filterValues$inputNbSpliceMax)   | (input$nbSpliceKeepNA & is.na(nb_splice))) &
+      ((clipped_3p  >= filterValues$inputClipped3pMin & clipped_3p    <= filterValues$inputClipped3pMax)  | (input$clipped3pKeepNA & is.na(clipped_3p))) &
+      ((nb_snv      >= filterValues$inputNbSnvMin & nb_snv            <= filterValues$inputNbSnvMax)      | (input$nbSnvKeepNA & is.na(nb_snv))) &
+      ((nb_hit      >= filterValues$inputNbHitMin & nb_hit            <= filterValues$inputNbHitMax)      | (input$nbHitKeepNA & is.na(nb_hit))) &
+      ((contig_size >= filterValues$inputContigSizeMin & contig_size  <= filterValues$inputContigSizeMax) | (input$contigSizeKeepNA & is.na(contig_size))) &
+      is.element(gene_is_diff,        filterValues$geneIsDiff) &
+      is.element(!is.na(gene_id),     filterValues$hasGene) &
+      is.element(!is.na(as_gene_id),  filterValues$hasASGene) &
+      is.element(is_mapped,           filterValues$isMapped) &
+      is.element(exonic,              filterValues$isExonic) &
+      is.element(intronic,            filterValues$isIntronic) &
+      eval(parse(text =               filterValues$customizedFilter))
     )
 
     return(s)
@@ -202,7 +208,7 @@ server <- function(input, output, session) {
       updateSliderInput(session, "nbSnv", value = c(inputNbSnvMin, inputNbSnvMax))
       updateSliderInput(session, "nbHit", value = c(inputNbHitMin, inputNbHitMax))
       updateSliderInput(session, "contigSize", value = c(inputContigSizeMin, inputContigSizeMax))
-      updateTextInput(session, "customFilter", value = filterPreset$other)
+      updateTextInput(session,   "customFilter", value = filterPreset$other)
 
       # Binary operations
       updateRadioButtons(session, "isIntronic", selected = toString(inputIsIntronic))
@@ -269,7 +275,9 @@ server <- function(input, output, session) {
       paste("selected_contigs",".tsv", sep = "")
     },
     content = function(file) {
-      write.table(dataTableFilters(), file = file, sep = "\t", col.names = TRUE, qmethod = "double", row.names = FALSE)
+      con <- file(file, 'w')
+      writeLines(filterToString(), con = file)
+      write.table(dataTableFilters(), file = file, append=TRUE, sep = "\t", col.names = TRUE, row.names = FALSE)
     }
   )
 

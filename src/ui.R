@@ -2,7 +2,7 @@
 ### Design the dashboad, Make the header
 #########################################################################################################################################
 header <- dashboardHeader(
-  title = span(img(src="dekupl-viewer-logo.png", height = "100%"))
+  title = "DEkupl viewer"
   # dropdownMenu(
   #   type = "messages",
   #   messageItem(
