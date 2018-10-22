@@ -2,7 +2,7 @@
 ### Design the dashboad, Make the header
 #########################################################################################################################################
 header <- dashboardHeader(
-  title = "DEkupl Annot dashboard"
+  title = span(img(src="dekupl-viewer-logo.png", height = "100%"))
   # dropdownMenu(
   #   type = "messages",
   #   messageItem(
