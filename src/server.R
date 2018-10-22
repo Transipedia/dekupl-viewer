@@ -108,25 +108,23 @@ server <- function(input, output, session) {
     inputNbHitMin      <- input$nbHit[[1]];           inputNbHitMax      <- input$nbHit[[2]]
     inputContigSizeMin <- input$contigSize[[1]];      inputContigSizeMax <- input$contigSize[[2]]
     customizedFilter   <- if (input$customFilter != "") input$customFilter else TRUE          # this is R code from interface
+
+    print(paste("IS MAPPED FILTER VALUE", input$isMapped, sep = " "))
     # these values are defined in preset filters file. (transipedia.tsv)
-    geneIsDiff <- c(FALSE, TRUE, NA)
-    geneSymbol <- c(FALSE, TRUE)
-    asGeneID   <- c(FALSE, TRUE)
-    isMapped   <- c(FALSE, TRUE, NA)
-    isExonic   <- c(FALSE, TRUE, NA)
-    isIntronic <- c(FALSE, TRUE, NA)
+    isMapped    <- if(input$isMapped != "NA") as.logical(input$isMapped) else c(FALSE, TRUE, NA)
+    geneIsDiff  <- if(input$geneIsDiff != "NA") as.logical(input$geneIsDiff) else c(FALSE, TRUE, NA)
+    hasGene     <- if(input$hasGene != "NA") as.logical(input$hasGene) else c(FALSE, TRUE)
+    hasASGene   <- if(input$hasASGene != "NA") as.logical(input$hasASGene) else c(FALSE, TRUE)
+    isExonic    <- if(input$isExonic != "NA") as.logical(input$isExonic) else c(FALSE, TRUE, NA)
+    isIntronic  <- if(input$isIntronic != "NA") input$isIntronic else c(FALSE, TRUE, NA)
     customizedPresetFilter <- TRUE # this is R code defined in preset-filters file, column other (transipedia.tsv)
+
+    print(paste("IS MAPPED FILTER VALUE OR NA", isMapped, sep = " "))
 
     if (input$preset != '-') {
       filterPreset           <- filtersPresetDF[which(filtersPresetDF$event == input$preset),]
       inputDuPvalueMin       <- if (!is.na(filterPreset$du_pvalue_min)) filterPreset$du_pvalue_min else minDuPvalues
       inputDuPvalueMax       <- if (!is.na(filterPreset$du_pvalue_max)) filterPreset$du_pvalue_max else maxDuPvalues
-      geneIsDiff             <- if (!is.na(filterPreset$gene_is_diff)) c(filterPreset$gene_is_diff) else c(FALSE, TRUE, NA)
-      geneSymbol             <- if (is.na(filterPreset$gene_symbol)) c(FALSE, TRUE) else if (filterPreset$gene_symbol == 'unknown') c(FALSE) else c(TRUE)
-      asGeneID               <- if (is.na(filterPreset$as_gene_id)) c(FALSE, TRUE) else if (filterPreset$as_gene_id == 'unknown') c(FALSE) else c(TRUE)
-      isMapped               <- if (!is.na(filterPreset$is_mapped)) c(filterPreset$is_mapped) else c(FALSE, TRUE, NA)
-      isExonic               <- if (!is.na(filterPreset$exonic)) c(filterPreset$exonic) else c(FALSE, TRUE, NA)
-      isIntronic             <- if (!is.na(filterPreset$intronic)) c(filterPreset$intronic) else c(FALSE, TRUE, NA)
       customizedPresetFilter <- if (!is.na(filterPreset$other)) c(filterPreset$other) else TRUE
     }
 
@@ -155,8 +153,8 @@ server <- function(input, output, session) {
       ((nb_hit >= inputNbHitMin & nb_hit <= inputNbHitMax) | (input$nbHitKeepNA & is.na(nb_hit))) &
       ((contig_size >= inputContigSizeMin & contig_size <= inputContigSizeMax) | (input$contigSizeKeepNA & is.na(contig_size))) &
       is.element(gene_is_diff, geneIsDiff) &
-      is.element(!is.na(gene_symbol), geneSymbol) &
-      is.element(!is.na(as_gene_id), asGeneID) &
+      is.element(!is.na(gene_id), hasGene) &
+      is.element(!is.na(as_gene_id), hasASGene) &
       is.element(is_mapped, isMapped) &
       is.element(exonic, isExonic) &
       is.element(intronic, isIntronic) &
@@ -172,20 +170,26 @@ server <- function(input, output, session) {
     if (input$preset != '-') {
       filterPreset <- filtersPresetDF[which(filtersPresetDF$event == input$preset),]
 
-      inputPvalueMin <- minPvalues
-      inputPvalueMax <- maxPvalues
-      inputDuPvalueMin <- if (!is.na(filterPreset$du_pvalue_min)) filterPreset$du_pvalue_min else minDuPvalues
-      inputDuPvalueMax <- if (!is.na(filterPreset$du_pvalue_max)) filterPreset$du_pvalue_max else maxDuPvalues
-      inputNbSpliceMin <- if (!is.na(filterPreset$nb_splice_min)) filterPreset$nb_splice_min else minNbSplices
-      inputNbSpliceMax <- if (!is.na(filterPreset$nb_splice_max)) filterPreset$nb_splice_max else maxNbSplices
-      inputClipped3pMin <- if (!is.na(filterPreset$clipped_3p_min)) filterPreset$clipped_3p_min else minClipped3ps
-      inputClipped3pMax <- if (!is.na(filterPreset$clipped_3p_max)) filterPreset$clipped_3p_max else maxClipped3ps
-      inputNbSnvMin <- if (!is.na(filterPreset$nb_snv_min)) filterPreset$nb_snv_min else minNbSnvs
-      inputNbSnvMax <- if (!is.na(filterPreset$nb_snv_max)) filterPreset$nb_snv_max else maxNbSnvs
-      inputNbHitMin <- if (!is.na(filterPreset$nb_hit_min)) filterPreset$nb_hit_min else minNbHits
-      inputNbHitMax <- if (!is.na(filterPreset$nb_hit_max)) filterPreset$nb_hit_max else maxNbHits
-      inputContigSizeMin <- if (!is.na(filterPreset$contig_size_min)) filterPreset$contig_size_min else minContigSizes
-      inputContigSizeMax <- if (!is.na(filterPreset$contig_size_max)) filterPreset$contig_size_max else maxContigSizes
+      inputPvalueMin      <- minPvalues
+      inputPvalueMax      <- maxPvalues
+      inputIsMapped       <- filterPreset$is_mapped
+      inputGeneIsDiff     <- filterPreset$gene_is_diff
+      inputHasGene        <- filterPreset$has_gene
+      inputHasASGene      <- filterPreset$has_as_gene
+      inputIsIntronic     <- filterPreset$intronic
+      inputIsExonic       <- filterPreset$exonic
+      inputDuPvalueMin    <- if (!is.na(filterPreset$du_pvalue_min)) filterPreset$du_pvalue_min else minDuPvalues
+      inputDuPvalueMax    <- if (!is.na(filterPreset$du_pvalue_max)) filterPreset$du_pvalue_max else maxDuPvalues
+      inputNbSpliceMin    <- if (!is.na(filterPreset$nb_splice_min)) filterPreset$nb_splice_min else minNbSplices
+      inputNbSpliceMax    <- if (!is.na(filterPreset$nb_splice_max)) filterPreset$nb_splice_max else maxNbSplices
+      inputClipped3pMin   <- if (!is.na(filterPreset$clipped_3p_min)) filterPreset$clipped_3p_min else minClipped3ps
+      inputClipped3pMax   <- if (!is.na(filterPreset$clipped_3p_max)) filterPreset$clipped_3p_max else maxClipped3ps
+      inputNbSnvMin       <- if (!is.na(filterPreset$nb_snv_min)) filterPreset$nb_snv_min else minNbSnvs
+      inputNbSnvMax       <- if (!is.na(filterPreset$nb_snv_max)) filterPreset$nb_snv_max else maxNbSnvs
+      inputNbHitMin       <- if (!is.na(filterPreset$nb_hit_min)) filterPreset$nb_hit_min else minNbHits
+      inputNbHitMax       <- if (!is.na(filterPreset$nb_hit_max)) filterPreset$nb_hit_max else maxNbHits
+      inputContigSizeMin  <- if (!is.na(filterPreset$contig_size_min)) filterPreset$contig_size_min else minContigSizes
+      inputContigSizeMax  <- if (!is.na(filterPreset$contig_size_max)) filterPreset$contig_size_max else maxContigSizes
 
       
       cat(sprintf(
@@ -202,6 +206,16 @@ server <- function(input, output, session) {
       updateSliderInput(session, "nbHit", value = c(inputNbHitMin, inputNbHitMax))
       updateSliderInput(session, "contigSize", value = c(inputContigSizeMin, inputContigSizeMax))
       updateTextInput(session, "customFilter", value = filterPreset$other)
+
+      print(paste("TOTO: ", inputHasGene))
+
+      # Binary operations
+      updateRadioButtons(session, "isIntronic", selected = toString(inputIsIntronic))
+      updateRadioButtons(session, "isExonic",   selected = toString(inputIsExonic))
+      updateRadioButtons(session, "hasASGene",  selected = toString(inputHasASGene))
+      updateRadioButtons(session, "hasGene",    selected = toString(inputHasGene))
+      updateRadioButtons(session, "geneIsDiff", selected = toString(inputGeneIsDiff))
+      updateRadioButtons(session, "isMapped",   selected = toString(inputIsMapped))
     }
   })
 
@@ -227,6 +241,14 @@ server <- function(input, output, session) {
     updateSliderInput(session, "contigSize", value = c(minContigSizes, maxContigSizes));  updateCheckboxInput(session, "contigSizeKeepNA", value = TRUE)
     updateTextInput(session, "customFilter", value = "")
     updateSelectInput(session, "preset", selected = "-")
+
+    # Reset binary filters
+    updateRadioButtons(session, "isMapped", selected = "NA")
+    updateRadioButtons(session, "geneIsDiff", selected = "NA")
+    updateRadioButtons(session, "hasGene", selected = "NA")
+    updateRadioButtons(session, "hasASGene", selected = "NA")
+    updateRadioButtons(session, "isIntronic", selected = "NA")
+    updateRadioButtons(session, "isExonic", selected = "NA")
   })
 
   #########################################################################################################################################

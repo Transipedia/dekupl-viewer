@@ -41,6 +41,17 @@ body <- dashboardBody(
         fluidRow(
           div(style="margin-bottom:10px;", actionButton("reset", "Reset All", icon = icon("glyphicon glyphicon-repeat", lib = "glyphicon")))
         ),
+        fluidRow(
+          box(
+            width = 12, title = "Binary options", status = "primary", solidHeader = TRUE, collapsible = TRUE,
+            radioButtons("isMapped",    label = "Is mapped",                        choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T),
+            radioButtons("geneIsDiff",  label = "Gene is differentially expressed", choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T),
+            radioButtons("hasGene",     label = "Affected to a gene",               choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T),
+            radioButtons("hasASGene",   label = "Affected to an anti-sens gene",    choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T),
+            radioButtons("isExonic",    label = "Is exonic",                        choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T),
+            radioButtons("isIntronic",  label = "Is intronic",                      choices = list("yes" = "TRUE", "no" = "FALSE", "both" = "NA"),  selected = "NA", inline = T)
+          )
+        ),
         ## pvalue filter
         fluidRow(
           box(
