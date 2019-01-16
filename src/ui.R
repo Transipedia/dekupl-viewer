@@ -200,9 +200,9 @@ body <- dashboardBody(
             title = "Heatmap",
             fluidRow(
               box(
-                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800,
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 830,
                 strong(textOutput("heatmapSelectedItems"), align = "center"),
-                # downloadButton(outputId = "downloadHeatmap", label = "Download"),
+                div(style="position:relative;left:90%", downloadButton(outputId = "downloadHeatmap", label = "Download")),
                 withSpinner(plotOutput("heatmap"))
               )
             )

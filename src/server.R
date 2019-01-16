@@ -385,18 +385,25 @@ server <- function(input, output, session) {
       mat_scaled = t(apply(mat, 1, scale))
       formatSample = gsub("s\\d+_", "", colnames(mat))
       colnames(mat_scaled) = formatSample
-
-      haConditions = HeatmapAnnotation(df = data.frame(conditions = conditions), show_annotation_name = TRUE)
+      # set conditions color. Caution: must not have more than 5 conditions (2 usually).
+      # this is to transform condition to a named vector
+      uniqCdts = unique(conditions)
+      colorCdts = c("black", "green", "blue", "red", "yellow")
+      colorCdtsVec = list(matrix(colorCdts[1: length(uniqCdts)], nrow = 1, ncol = length(uniqCdts), byrow = TRUE, dimnames = list(c(), uniqCdts)))
+      colorCdtsVec = unlist(as.data.frame(colorCdtsVec)[1,])
+      names(colorCdtsVec) = uniqCdts
+      
+      haConditions = HeatmapAnnotation(df = data.frame(conditions = conditions), col = list(conditions = colorCdtsVec), show_annotation_name = TRUE)
 
       Heatmap(
-        mat_scaled, name = "expression", km = 5, col = colorRamp2(c(-2, 0, 2), c("green", "white", "red")),
+        mat_scaled, name = "expression", km = 5, col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red")),
         top_annotation = haConditions,
         cluster_columns = TRUE,
         # column_title_gp = gpar(),
         show_row_names = FALSE,
         show_column_names = TRUE
       ) +
-      Heatmap(base_mean, name = "base mean", show_row_names = FALSE, width = unit(5, "mm")) +
+      Heatmap(base_mean, name = "base mean", col = colorRamp2(c(0, 1000), c("white", "grey")), show_row_names = FALSE, width = unit(5, "mm")) +
       Heatmap(
         data$contig_size, name = "contig size", col = colorRamp2(c(0, 1300), c("white", "orange")),
         heatmap_legend_param = list(
@@ -417,15 +424,11 @@ server <- function(input, output, session) {
 
   ## download Heatmap
   output$downloadHeatmap <- downloadHandler(
-    filename = "heatmap.png",
+    filename = "heatmap.pdf",
     content = function(file) {
-      #preparing the dataset from an external function
-      # corr_data <- dataTableFilters() 
-      #colors of the heatmap
-      col<- colorRampPalette(c("blue", "white", "red"))(20)
-      png(file)
-      # heatmap(x = cor(x =as.matrix(corr_data)) , col = col, symm = TRUE)
-      heatmap()
+      pdf(file=file, paper="a4r", width=30)
+      h = heatmap()
+      HM <- draw(h)
       dev.off()
     }
   )
@@ -475,17 +478,17 @@ server <- function(input, output, session) {
     if (nrow(data) > 0) {
       with(data, plot(log2FC, -log10(pvalue), pch=20, xlim=c(-2.5, 2)))
 
-      # Add colored points: red if pvalue (padj ?) <0.05, orange of log2FC>1, green if both)
+      # Add colored points: red if pvalue (padj ?) <0.05, orange of log2FC>1, gray if both)
       with(subset(data, pvalue<.05 ), points(log2FC, -log10(pvalue), pch=20, col="red"))
       with(subset(data, abs(log2FC)>1), points(log2FC, -log10(pvalue), pch=20, col="orange"))
-      with(subset(data, pvalue<.05 & abs(log2FC)>1), points(log2FC, -log10(pvalue), pch=20, col="green"))
+      with(subset(data, pvalue<.05 & abs(log2FC)>1), points(log2FC, -log10(pvalue), pch=20, col="gray"))
 
       # Label points with the textxy function from the calibrate plot
       library(calibrate)
       with(subset(data, pvalue<.05 & abs(log2FC)>1), textxy(log2FC, -log10(pvalue), labs=gene_symbol, cex=.8))
       legend(x="topleft",
         legend=c("pvalue < 0.05", "log2FC > 1", "both"),
-        col=c("red", "orange", "green"), box.lty=0, pch=20
+        col=c("red", "orange", "gray"), box.lty=0, pch=20
       )
     } else {
       print('no data')
