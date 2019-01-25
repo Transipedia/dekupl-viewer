@@ -449,7 +449,8 @@ server <- function(input, output, session) {
       fviz_pca_ind(
         res.pca,
         col.ind = conditions,
-        repel = TRUE
+        repel = TRUE,
+        label=ifelse(input$pcaHideLabels, "none", "all")
       )
     } else {
       print('no data')

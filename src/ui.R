@@ -211,9 +211,9 @@ body <- dashboardBody(
             title = "PCA",
             fluidRow(
               box(
-                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 800,
+                title = "contigs", status = "primary", solidHeader = TRUE, collapsible = FALSE, width = 12, height = 860,
                 strong(textOutput("pcaSelectedItems"), align = "center"),
-                div(style="position:relative;left:90%", downloadButton(outputId = "downloadPCA", label = "Download")),
+                div(style="position:relative;left:90%", downloadButton(outputId = "downloadPCA", label = "Download"), checkboxInput("pcaHideLabels", "Hide labels", value = FALSE)),
                 withSpinner(plotOutput("pca"))
               )
             )
